@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.cloudshield</groupId>
+  <artifactId>cloudshield-gateway</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>cloudshield-gateway</name>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <aws.sdk.version>2.25.15</aws.sdk.version>
+  </properties>
+
+  <dependencies>
+    <!-- AWS Lambda Core -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-core</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+
+    <!-- API Gateway V2 HTTP event models -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-events</artifactId>
+      <version>3.11.3</version>
+    </dependency>
+
+    <!-- AWS SDK v2 - DynamoDB Client -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb</artifactId>
+      <version>${aws.sdk.version}</version>
+    </dependency>
+
+    <!-- AWS SDK v2 - Region module -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>regions</artifactId>
+      <version>${aws.sdk.version}</version>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.16</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.17.2</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.16</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <!-- Build a FAT JAR for AWS Lambda -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>shaded</shadedClassifierName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>
