@@ -9,23 +9,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: "17"
-          distribution: "temurin"
+          java-version: 17
+          distribution: temurin
 
-      - name: Build shaded JAR
+      # Step 3: Build the shaded JAR (fat jar)
+      - name: Build with Maven
         run: mvn -B clean package
 
-      - name: Deploy Lambda
-        uses: appleboy/lambda-action@v1.2.0
+      # Step 4: Configure AWS credentials for deployment
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-west-2
-          function_name: cloudshield-gateway
-          zip_file: target/cloudshield-gateway-0.0.1-SNAPSHOT-shaded.jar
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      # Step 5: Deploy Lambda
+      - name: Deploy Lambda Function
+        uses: aws-actions/aws-lambda-deploy@v1
+        with:
+          function-name: cloudshield-gateway
+          zip-file: target/cloudshield-gateway-0.0.1-SNAPSHOT-shaded.jar
