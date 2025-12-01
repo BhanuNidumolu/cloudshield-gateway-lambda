@@ -9,32 +9,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1 — Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Java 17
+      # Step 2 — Setup Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
 
-      # Step 3: Build the shaded JAR (fat jar)
+      # Step 3 — Build shaded JAR using Maven
       - name: Build with Maven
         run: mvn -B clean package
 
-      # Step 4: Configure AWS credentials for deployment
-      - name: Configure AWS credentials
+      # Step 4 — Prepare artifact folder for Lambda deploy
+      - name: Prepare Lambda artifact
+        run: |
+          mkdir lambda-artifact
+          cp target/cloudshield-gateway-0.0.1-SNAPSHOT-shaded.jar lambda-artifact/
+
+      # Step 5 — Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
 
-      # Step 5: Deploy Lambda
+      # Step 6 — Deploy Lambda
       - name: Deploy Lambda Function
         uses: aws-actions/aws-lambda-deploy@v1
         with:
           function-name: cloudshield-gateway
-          zip-file: target/cloudshield-gateway-0.0.1-SNAPSHOT-shaded.jar
+          code-artifacts-dir: lambda-artifact/
