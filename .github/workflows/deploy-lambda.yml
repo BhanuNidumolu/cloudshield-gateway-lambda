@@ -2,38 +2,30 @@ name: Deploy CloudShield Lambda
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - '**/*.java'
-      - 'pom.xml'
-      - '.github/workflows/deploy-lambda.yml'
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Build shaded JAR
+        run: mvn -B clean package
 
-      - name: Upload Lambda ZIP
-        uses: appleboy/lambda-action@v2
+      - name: Deploy Lambda
+        uses: appleboy/lambda-action@v1.2.0
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
-          function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+          aws_region: us-west-2
+          function_name: cloudshield-gateway
           zip_file: target/cloudshield-gateway-0.0.1-SNAPSHOT-shaded.jar
-          environment: |
-            BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
